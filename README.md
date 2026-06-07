@@ -6,9 +6,11 @@ The app runs entirely in the browser with Canvas. No build step, backend, or pac
 
 中文用户可以点击右上角 `中文` 切换界面语言。默认界面为英文。
 
+![OpenAI-style blue diffusion background generated with Gradient Atelier](docs/examples/openai-blue-diffusion.png)
+
 ## Examples
 
-Both examples below were generated with `Horizon bands = 0`.
+All examples below were generated with `Horizon bands = 0`.
 
 | Soft diffusion | Watercolor wash |
 | --- | --- |
@@ -69,6 +71,7 @@ canvas, gradient, generative-art, background-generator, openai-style, design-too
 └── docs/
     └── examples/
         ├── diffusion-blue-violet.png
+        ├── openai-blue-diffusion.png
         └── watercolor-warm-wash.png
 ```
 
