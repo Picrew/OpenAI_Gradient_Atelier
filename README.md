@@ -74,7 +74,3 @@ canvas, gradient, generative-art, background-generator, openai-style, design-too
         ├── openai-blue-diffusion.png
         └── watercolor-warm-wash.png
 ```
-
-## Notes
-
-The repository intentionally excludes downloaded reference assets, scraper logs, and local browser test artifacts. The app itself is self-contained in the three source files plus the README example images.
