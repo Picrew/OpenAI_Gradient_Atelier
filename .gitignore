@@ -1,0 +1,27 @@
+.DS_Store
+*.log
+
+# Local browser/test artifacts
+.playwright-cli/
+output/
+_inspection/
+
+# Downloaded reference assets and scraper outputs
+curated/
+scraped/
+pages/
+openai_official_diffusion_assets/
+download_openai_gradients.sh
+downloaded_urls.tsv
+failed_urls.txt
+failed_pages.txt
+scraped_urls_all.txt
+scraped_urls_filtered.txt
+scraped_urls_raw.txt
+seed_urls.txt
+source_pages.txt
+
+# Dependency/cache folders if added later
+node_modules/
+.cache/
+dist/

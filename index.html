@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gradient Atelier</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230071e3'/%3E%3Ccircle cx='22' cy='22' r='18' fill='%2364d2ff' fill-opacity='.85'/%3E%3Ccircle cx='45' cy='43' r='20' fill='%23ff8fc7' fill-opacity='.7'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <div>
+          <p class="eyebrow" data-i18n="brand">OpenAI Gradient Atelier</p>
+          <h1 data-i18n="appTitle">Diffusion background generator</h1>
+        </div>
+        <div class="header-actions">
+          <div class="language-toggle" role="group" aria-label="Language">
+            <button data-lang="zh" type="button">中文</button>
+            <button class="active" data-lang="en" type="button">EN</button>
+          </div>
+          <button class="secondary-button" id="resetButton" type="button" data-i18n="reset">Reset</button>
+          <button class="primary-button" id="exportButton" type="button" data-i18n="exportPng">Export PNG</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="control-panel" aria-label="Generator controls">
+        <section class="control-section">
+          <div class="section-heading">
+            <span data-i18n="mode">Mode</span>
+            <output id="seedLabel">seed 1209</output>
+          </div>
+          <div class="segmented" role="tablist" aria-label="Background style">
+            <button class="active" data-preset="diffusion" type="button" data-i18n="presetDiffusion">Diffusion</button>
+            <button data-preset="horizon" type="button" data-i18n="presetHorizon">Horizon</button>
+            <button data-preset="watercolor" type="button" data-i18n="presetWatercolor">Wash</button>
+            <button data-preset="material" type="button" data-i18n="presetMaterial">Material</button>
+            <button data-preset="mono" type="button" data-i18n="presetMono">Mono</button>
+          </div>
+        </section>
+
+        <section class="control-section">
+          <div class="section-heading">
+            <span data-i18n="coreControls">Core controls</span>
+            <button class="text-button" id="randomizeButton" type="button" data-i18n="randomize">Randomize</button>
+          </div>
+
+          <label class="range-row">
+            <span class="range-label">
+              <span data-i18n="colorProgress">Color progress</span>
+              <output id="colorMixValue" for="colorMix">32</output>
+            </span>
+            <input id="colorMix" type="range" min="0" max="100" value="32" />
+          </label>
+          <label class="range-row">
+            <span class="range-label">
+              <span data-i18n="diffusionSoftness">Diffusion softness</span>
+              <output id="softnessValue" for="softness">72</output>
+            </span>
+            <input id="softness" type="range" min="0" max="100" value="72" />
+          </label>
+          <label class="range-row">
+            <span class="range-label">
+              <span data-i18n="textureProgress">Texture progress</span>
+              <output id="textureValue" for="texture">42</output>
+            </span>
+            <input id="texture" type="range" min="0" max="100" value="42" />
+          </label>
+          <label class="range-row">
+            <span class="range-label">
+              <span data-i18n="materialDepth">Material depth</span>
+              <output id="materialDepthValue" for="materialDepth">34</output>
+            </span>
+            <input id="materialDepth" type="range" min="0" max="100" value="34" />
+          </label>
+          <label class="range-row">
+            <span class="range-label">
+              <span data-i18n="horizonBands">Horizon bands</span>
+              <output id="bandsValue" for="bands">18</output>
+            </span>
+            <input id="bands" type="range" min="0" max="100" value="18" />
+          </label>
+          <label class="range-row">
+            <span class="range-label">
+              <span data-i18n="brushMotion">Brush motion</span>
+              <output id="brushValue" for="brush">28</output>
+            </span>
+            <input id="brush" type="range" min="0" max="100" value="28" />
+          </label>
+          <label class="range-row">
+            <span class="range-label">
+              <span data-i18n="vignette">Vignette</span>
+              <output id="vignetteValue" for="vignette">24</output>
+            </span>
+            <input id="vignette" type="range" min="0" max="100" value="24" />
+          </label>
+        </section>
+
+        <section class="control-section">
+          <div class="section-heading">
+            <span data-i18n="frame">Frame</span>
+          </div>
+          <div class="button-grid" aria-label="Aspect ratio">
+            <button class="frame-button active" data-frame="square" type="button">1:1</button>
+            <button class="frame-button" data-frame="wide" type="button">16:9</button>
+            <button class="frame-button" data-frame="card" type="button" data-i18n="card">Card</button>
+          </div>
+        </section>
+
+        <section class="control-section">
+          <div class="section-heading">
+            <span data-i18n="evolutionLab">Evolution lab</span>
+            <output id="bestScore">best 0.00</output>
+          </div>
+          <button class="primary-button full-width" id="evolveButton" type="button" data-i18n="generateCandidates">Generate 10 candidates</button>
+          <div class="candidate-grid" id="candidateGrid" aria-label="Generated candidates"></div>
+        </section>
+      </aside>
+
+      <section class="preview-area" aria-label="Generated background preview">
+        <div class="stage-toolbar">
+          <div>
+            <p class="eyebrow" data-i18n="liveCanvas">Live canvas</p>
+            <h2 id="presetTitle">Soft diffusion field</h2>
+          </div>
+          <div class="stage-meta">
+            <span id="sizeLabel">2160 x 2160 export</span>
+            <span id="qualityLabel">grain 42</span>
+          </div>
+        </div>
+
+        <div class="canvas-shell" id="canvasShell">
+          <canvas id="artCanvas" width="1400" height="1400" aria-label="Generated gradient background"></canvas>
+        </div>
+
+        <div class="reference-strip" aria-label="Reference backgrounds">
+          <img src="curated/bd2941360a_Gradient_Media.png" alt="Reference horizon gradient" />
+          <img src="curated/b1caf31aef_o1-systems_card_v2_1.1.png" alt="Reference watercolor texture" />
+          <img src="curated/c5d4f8131f_oai_Parloa_1x1.png" alt="Reference glossy material" />
+          <img src="curated/158bdbf07c_3.png" alt="Reference blue diffusion" />
+          <img src="curated/f97b098524_oai_Warp_1x1.png" alt="Reference purple material texture" />
+          <img src="curated/4c77e0f0ae_how_to_evaluate_GPT5_for_your_business.png" alt="Reference pastel card" />
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
