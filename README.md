@@ -52,7 +52,7 @@ A browser-based Canvas tool for generating OpenAI-style diffusion, grain, waterc
 Website:
 
 ```text
-https://picrew.github.io/OpenAI_Gradient_Atelier/
+https://www.seekcopywriter.com/openai-gradient-atelier/
 ```
 
 Topics:
