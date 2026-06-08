@@ -133,10 +133,10 @@ const rangeGradients = {
 
 const presetDefaults = {
   diffusion: { colorMix: 30, softness: 78, texture: 36, materialDepth: 28, bands: 0, brush: 24, vignette: 20 },
-  horizon: { colorMix: 66, softness: 84, texture: 58, materialDepth: 22, bands: 86, brush: 18, vignette: 42 },
-  watercolor: { colorMix: 78, softness: 42, texture: 68, materialDepth: 14, bands: 8, brush: 88, vignette: 14 },
-  material: { colorMix: 18, softness: 54, texture: 34, materialDepth: 82, bands: 22, brush: 42, vignette: 38 },
-  mono: { colorMix: 44, softness: 64, texture: 62, materialDepth: 18, bands: 4, brush: 16, vignette: 24 },
+  horizon: { colorMix: 66, softness: 84, texture: 58, materialDepth: 22, bands: 0, brush: 18, vignette: 42 },
+  watercolor: { colorMix: 78, softness: 42, texture: 68, materialDepth: 14, bands: 0, brush: 88, vignette: 14 },
+  material: { colorMix: 18, softness: 54, texture: 34, materialDepth: 82, bands: 0, brush: 42, vignette: 38 },
+  mono: { colorMix: 44, softness: 64, texture: 62, materialDepth: 18, bands: 0, brush: 16, vignette: 24 },
 };
 
 const palettes = [
