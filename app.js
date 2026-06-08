@@ -20,6 +20,8 @@ const translations = {
     backgroundStyle: "Background style",
     presetDiffusion: "Diffusion",
     presetHorizon: "Horizon",
+    presetAurora: "Aurora",
+    presetPrism: "Prism",
     presetWatercolor: "Wash",
     presetMaterial: "Material",
     presetMono: "Mono",
@@ -49,6 +51,8 @@ const translations = {
     presetTitles: {
       diffusion: "Soft diffusion field",
       horizon: "Horizon color bloom",
+      aurora: "Aurora diffusion glow",
+      prism: "Prism sky diffusion",
       watercolor: "Watercolor wash",
       material: "Glossy material field",
       mono: "Single-hue grain field",
@@ -65,6 +69,8 @@ const translations = {
     backgroundStyle: "背景风格",
     presetDiffusion: "弥散",
     presetHorizon: "地平线",
+    presetAurora: "极光",
+    presetPrism: "棱镜",
     presetWatercolor: "水彩",
     presetMaterial: "材质",
     presetMono: "单色",
@@ -94,6 +100,8 @@ const translations = {
     presetTitles: {
       diffusion: "柔和弥散色场",
       horizon: "地平线色彩光晕",
+      aurora: "极光弥散光晕",
+      prism: "棱镜天空弥散",
       watercolor: "水彩笔触洗染",
       material: "光泽材质色场",
       mono: "单色颗粒色场",
@@ -134,6 +142,8 @@ const rangeGradients = {
 const presetDefaults = {
   diffusion: { colorMix: 30, softness: 78, texture: 36, materialDepth: 28, bands: 0, brush: 24, vignette: 20 },
   horizon: { colorMix: 66, softness: 84, texture: 58, materialDepth: 22, bands: 0, brush: 18, vignette: 42 },
+  aurora: { colorMix: 94, softness: 86, texture: 56, materialDepth: 30, bands: 0, brush: 18, vignette: 38 },
+  prism: { colorMix: 16, softness: 88, texture: 34, materialDepth: 46, bands: 0, brush: 12, vignette: 18 },
   watercolor: { colorMix: 78, softness: 42, texture: 68, materialDepth: 14, bands: 0, brush: 88, vignette: 14 },
   material: { colorMix: 18, softness: 54, texture: 34, materialDepth: 82, bands: 0, brush: 42, vignette: 38 },
   mono: { colorMix: 44, softness: 64, texture: 62, materialDepth: 18, bands: 0, brush: 16, vignette: 24 },
@@ -352,6 +362,20 @@ function addRadial(ctx2d, x, y, radius, inner, outer, alpha = 1) {
   ctx2d.fillRect(0, 0, ctx2d.canvas.width, ctx2d.canvas.height);
 }
 
+function addEllipticalGlow(ctx2d, x, y, radiusX, radiusY, inner, outer, alpha = 1) {
+  const scaleY = radiusY / Math.max(radiusX, 1);
+  ctx2d.save();
+  ctx2d.translate(x, y);
+  ctx2d.scale(1, scaleY);
+  const gradient = ctx2d.createRadialGradient(0, 0, 0, 0, 0, radiusX);
+  gradient.addColorStop(0, rgbToCss(inner, alpha));
+  gradient.addColorStop(0.5, rgbToCss(outer, alpha * 0.34));
+  gradient.addColorStop(1, rgbToCss(outer, 0));
+  ctx2d.fillStyle = gradient;
+  ctx2d.fillRect(-ctx2d.canvas.width * 2, -ctx2d.canvas.height * 2, ctx2d.canvas.width * 4, ctx2d.canvas.height * 4);
+  ctx2d.restore();
+}
+
 function drawBase(ctx2d, width, height, settings, random) {
   const palette = paletteAt(settings.colorMix);
   const angle = random() * Math.PI * 2;
@@ -405,6 +429,118 @@ function drawHorizon(ctx2d, width, height, settings, random, palette) {
     ctx2d.filter = `blur(${Math.round(height * 0.018)}px)`;
     ctx2d.fillRect(0, y, width, height * 0.055);
   }
+  ctx2d.restore();
+}
+
+function drawAurora(ctx2d, width, height, settings, random, palette) {
+  const intensity = clamp((settings.softness * 0.48 + settings.texture * 0.24 + settings.materialDepth * 0.28) / 100, 0.32, 0.92);
+  const horizonY = height * lerp(0.72, 0.82, random());
+  ctx2d.save();
+
+  const air = ctx2d.createLinearGradient(0, 0, 0, height);
+  air.addColorStop(0, "rgba(255, 255, 255, 0.22)");
+  air.addColorStop(0.58, rgbToCss(palette[3], 0.16 * intensity));
+  air.addColorStop(1, rgbToCss(palette[4], 0.1 * intensity));
+  ctx2d.globalCompositeOperation = "screen";
+  ctx2d.fillStyle = air;
+  ctx2d.fillRect(0, 0, width, height);
+
+  ctx2d.filter = `blur(${Math.round(height * 0.032)}px)`;
+  for (let i = 0; i < 7; i += 1) {
+    addEllipticalGlow(
+      ctx2d,
+      width * lerp(-0.08, 1.08, random()),
+      horizonY + height * lerp(-0.1, 0.13, random()),
+      width * lerp(0.38, 0.78, random()),
+      height * lerp(0.06, 0.18, random()),
+      palette[(i + 1) % palette.length],
+      palette[(i + 3) % palette.length],
+      lerp(0.16, 0.42, random()) * intensity
+    );
+  }
+
+  ctx2d.filter = `blur(${Math.round(height * 0.014)}px)`;
+  const horizonGlow = ctx2d.createLinearGradient(0, horizonY - height * 0.13, width, horizonY + height * 0.08);
+  horizonGlow.addColorStop(0, rgbToCss(palette[3], 0));
+  horizonGlow.addColorStop(0.4, rgbToCss(palette[1], 0.34 * intensity));
+  horizonGlow.addColorStop(0.68, rgbToCss(palette[0], 0.52 * intensity));
+  horizonGlow.addColorStop(1, rgbToCss(palette[2], 0.18 * intensity));
+  ctx2d.fillStyle = horizonGlow;
+  ctx2d.fillRect(0, horizonY - height * 0.18, width, height * 0.3);
+
+  ctx2d.filter = `blur(${Math.round(height * 0.02)}px)`;
+  const rim = ctx2d.createLinearGradient(0, horizonY + height * 0.05, width, horizonY + height * 0.08);
+  rim.addColorStop(0, rgbToCss(palette[0], 0.18 * intensity));
+  rim.addColorStop(0.42, rgbToCss(palette[1], 0.34 * intensity));
+  rim.addColorStop(0.72, rgbToCss(palette[2], 0.42 * intensity));
+  rim.addColorStop(1, rgbToCss(palette[4], 0.16 * intensity));
+  ctx2d.fillStyle = rim;
+  ctx2d.fillRect(0, horizonY - height * 0.02, width, height * 0.16);
+
+  ctx2d.globalCompositeOperation = "multiply";
+  ctx2d.filter = "none";
+  const ground = ctx2d.createLinearGradient(0, horizonY - height * 0.05, 0, height);
+  ground.addColorStop(0, rgbToCss(palette[4], 0));
+  ground.addColorStop(0.58, rgbToCss(palette[4], 0.34 * intensity));
+  ground.addColorStop(1, rgbToCss(palette[4], 0.72 * intensity));
+  ctx2d.fillStyle = ground;
+  ctx2d.fillRect(0, horizonY - height * 0.06, width, height * 0.36);
+
+  ctx2d.globalCompositeOperation = "screen";
+  ctx2d.filter = `blur(${Math.round(height * 0.018)}px)`;
+  const finalRim = ctx2d.createLinearGradient(0, horizonY + height * 0.02, width, horizonY + height * 0.04);
+  finalRim.addColorStop(0, rgbToCss(palette[0], 0.1 * intensity));
+  finalRim.addColorStop(0.38, rgbToCss(palette[1], 0.28 * intensity));
+  finalRim.addColorStop(0.7, rgbToCss(palette[2], 0.36 * intensity));
+  finalRim.addColorStop(1, rgbToCss(palette[3], 0.14 * intensity));
+  ctx2d.fillStyle = finalRim;
+  ctx2d.fillRect(0, horizonY - height * 0.02, width, height * 0.13);
+  ctx2d.restore();
+}
+
+function drawPrism(ctx2d, width, height, settings, random, palette) {
+  const intensity = clamp((settings.softness * 0.52 + settings.materialDepth * 0.32 + settings.brush * 0.16) / 100, 0.34, 0.92);
+  ctx2d.save();
+  ctx2d.globalCompositeOperation = "screen";
+  ctx2d.filter = `blur(${Math.round(width * 0.018)}px)`;
+
+  for (let i = 0; i < 6; i += 1) {
+    ctx2d.save();
+    ctx2d.translate(width * 0.5, height * 0.5);
+    ctx2d.rotate(lerp(-0.72, 0.72, random()));
+    const y = height * lerp(-0.62, 0.44, random());
+    const beam = ctx2d.createLinearGradient(-width, y, width, y + height * 0.22);
+    beam.addColorStop(0, rgbToCss(palette[(i + 2) % palette.length], 0));
+    beam.addColorStop(0.38, rgbToCss(palette[i % palette.length], lerp(0.18, 0.42, random()) * intensity));
+    beam.addColorStop(0.62, "rgba(255, 255, 255, 0.16)");
+    beam.addColorStop(1, rgbToCss(palette[(i + 1) % palette.length], 0));
+    ctx2d.fillStyle = beam;
+    ctx2d.fillRect(-width * 1.2, y, width * 2.4, height * lerp(0.16, 0.34, random()));
+    ctx2d.restore();
+  }
+
+  ctx2d.filter = `blur(${Math.round(width * 0.04)}px)`;
+  for (let i = 0; i < 5; i += 1) {
+    addEllipticalGlow(
+      ctx2d,
+      width * lerp(-0.08, 1.08, random()),
+      height * lerp(0.04, 0.96, random()),
+      width * lerp(0.24, 0.52, random()),
+      height * lerp(0.2, 0.48, random()),
+      palette[(i + 3) % palette.length],
+      palette[(i + 1) % palette.length],
+      lerp(0.12, 0.28, random()) * intensity
+    );
+  }
+
+  ctx2d.globalCompositeOperation = "soft-light";
+  ctx2d.filter = "none";
+  const veil = ctx2d.createLinearGradient(0, 0, width, height);
+  veil.addColorStop(0, rgbToCss(palette[4], 0.14 * intensity));
+  veil.addColorStop(0.5, "rgba(255, 255, 255, 0.1)");
+  veil.addColorStop(1, rgbToCss(palette[2], 0.16 * intensity));
+  ctx2d.fillStyle = veil;
+  ctx2d.fillRect(0, 0, width, height);
   ctx2d.restore();
 }
 
@@ -528,6 +664,10 @@ function renderTo(targetCanvas, settings, seed, frame, exportSize = false, baseO
 
   if (state.preset === "horizon") {
     drawHorizon(targetCtx, width, height, settings, random, palette);
+  } else if (state.preset === "aurora") {
+    drawAurora(targetCtx, width, height, settings, random, palette);
+  } else if (state.preset === "prism") {
+    drawPrism(targetCtx, width, height, settings, random, palette);
   } else if (state.preset === "watercolor") {
     drawBrush(targetCtx, width, height, { ...settings, brush: Math.max(settings.brush, 82) }, random, palette);
   } else if (state.preset === "material") {
@@ -541,7 +681,7 @@ function renderTo(targetCanvas, settings, seed, frame, exportSize = false, baseO
     targetCtx.restore();
   }
 
-  if (state.preset !== "watercolor") {
+  if (state.preset !== "watercolor" && state.preset !== "aurora") {
     drawBrush(targetCtx, width, height, settings, random, palette);
   }
   if (state.preset !== "horizon") {

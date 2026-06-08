@@ -1,6 +1,6 @@
 # OpenAI Gradient Atelier
 
-A small static web app for generating soft diffusion, grain, watercolor, horizon, and material-style abstract backgrounds inspired by OpenAI editorial visuals.
+A small static web app for generating soft diffusion, horizon, aurora, prism, watercolor, and material-style abstract backgrounds inspired by OpenAI editorial visuals.
 
 The app runs entirely in the browser with Canvas. No build step, backend, or package install is required.
 
@@ -19,7 +19,7 @@ All examples below were generated with `Horizon bands = 0`.
 ## Features
 
 - Pure browser-based Canvas rendering
-- Diffusion, horizon, watercolor, material, and mono modes
+- Diffusion, horizon, aurora, prism, watercolor, material, and mono modes
 - Gradient sliders with live numeric values
 - Smooth preview while dragging controls
 - English and Chinese UI toggle
